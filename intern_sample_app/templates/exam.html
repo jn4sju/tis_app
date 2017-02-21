@@ -6,12 +6,12 @@
     <div class="row">
       <div class="panel panel-default">
         <div class="panel-heading">
-          <p>簡易審査フォーム</p>
+          <p>簡易審査フォームver1.0</p>
         </div>
         <div class="panel-body">
-          {% if predictedLabel and predictedLabel == "1" %}
+          {% if predictedLabel and predictedLabel == "0" %}
           <div class="alert alert-success">この内容であれば問題なく融資可能です。ぜひ店頭までお越しください。</div>
-          {% elif predictedLabel and predictedLabel == "0" %}
+          {% elif predictedLabel and predictedLabel == "1" %}
           <div class="alert alert-info">この情報だけでは融資可否を判断できませんでした。詳細な審査をご希望の方は店頭までお越しください。</div>
           {% endif %}
           <form class="form-horizontal" role="form" action="{% url 'exam' %}" method="post">
