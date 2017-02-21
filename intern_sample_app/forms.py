@@ -3,6 +3,7 @@ import json
 import requests
 from django import forms
 from django.conf import settings
+import math
 
 DEFAULT_AMAZON_ML_ENDPOINT="https://realtime.machinelearning.us-east-1.amazonaws.com"
 
@@ -20,7 +21,10 @@ EMP_LENGTH_CHOICES = (
     (9.0, "満9年"),
     (10.0, "10年以上"),
 )
-
+TERM_LENGTH_CHOICES = (
+    (36/60, "36ヶ月"),
+    (60/60, "60ヶ月"),
+)
 HOME_OWNERSHIP_CHOICES = (
     ("RENT", "賃貸"),
     ("OWN", "持ち家"),
@@ -37,12 +41,22 @@ class ExaminationForm(forms.Form):
         required=True,
         widget=forms.NumberInput()
     )
+    """
     emp_title = forms.CharField(
         label="職種",
         max_length=60,
         required=False,
         widget=forms.TextInput()
     )
+    
+    """
+    term = forms.ChoiceField(
+        label="融資期間",
+        choices=TERM_LENGTH_CHOICES,
+        required=True,
+        widget=forms.Select()
+    )
+    
     emp_length = forms.ChoiceField(
         label="勤続年数",
         choices=EMP_LENGTH_CHOICES,
@@ -54,6 +68,9 @@ class ExaminationForm(forms.Form):
         min_value=0,
         required=True,
         widget=forms.NumberInput()
+
+
+        
     )
     home_ownership = forms.ChoiceField(
         label="自宅の所有状況",
@@ -70,10 +87,11 @@ class ExaminationForm(forms.Form):
             "MLModelId": model_id,
             "PredictEndpoint": amazon_ml_endpoint,
             "Record": {
-                "loan_amnt": str(self.cleaned_data['loan_amnt']),
-                "emp_title": self.cleaned_data['emp_title'],
+                "loan_amnt": str((self.cleaned_data['loan_amnt'])/40000),
+                #"emp_title": self.cleaned_data['emp_title'],
                 "emp_length": self.cleaned_data['emp_length'],
-                "annual_inc": str(self.cleaned_data['annual_inc']),
+                "term": self.cleaned_data['term'],
+                "annual_inc": str(math.tanh(2*(self.cleaned_data['annual_inc']/400000))),
                 "home_ownership": self.cleaned_data['home_ownership'],
             }
         }
